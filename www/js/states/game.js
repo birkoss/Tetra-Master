@@ -17,15 +17,12 @@ GAME.Game.prototype = {
     /* Misc methods */
     createCards: function() {
         for (let i=0; i<5; i++) {
-            let card = this.cardsContainer.create(0, 0, "card:background");
-            card.x = i * (card.width-16);
-            card.originalX = card.x;
-            card.originalY = card.y;
-
-            card.inputEnabled = true;
-            card.input.enableDrag();
-            card.events.onDragStart.add(this.onDragStart, this);
-            card.events.onDragStop.add(this.onDragStop, this);
+            let card = new Card(this.game);
+            card.x = i * (58);
+            card.setInteractive(true);
+            card.onCardDragStart.add(this.onDragStart, this);
+            card.onCardDragStop.add(this.onDragStop, this);
+            this.cardsContainer.addChild(card);
         }
 
         this.cardsContainer.y = (this.mapContainer.y*2) + this.mapContainer.height;
@@ -48,7 +45,8 @@ GAME.Game.prototype = {
         this.mapContainer.y = this.mapContainer.x;
     },
 
-    onDragStart: function(card, pointer) {
+    onDragStart: function(card) {
+        console.log(card);
         this.cardsContainer.swap(card, this.cardsContainer.getChildAt(this.cardsContainer.children.length - 1));
     },
     onDragStop: function(card, pointer) {
@@ -56,10 +54,11 @@ GAME.Game.prototype = {
 
         let tile = this.map.getTileAtWorldPosition(cursor.x, cursor.y);
         if (tile == null) {
+            console.log("NOP: " + card.x + "x" + card.y + " from " + card.originalX + "x" + card.originalY);
             card.x = card.originalX;
             card.y = card.originalY;
         } else {
-            card.inputEnabled = false;
+            card.setInteractive(false);
             tile.card = card;
             tile.addChild(card);
             card.x = card.y = 0;
